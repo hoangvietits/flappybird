@@ -111,3 +111,58 @@ flap_sound = pg.mixer.Sound('sound/sfx_wing.wav')
 hit_sound = pg.mixer.Sound('sound/sfx_hit.wav')
 score_sound = pg.mixer.Sound('sound/sfx_point.wav')
 countdown = 100
+#game loop
+while True:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            pg.quit()
+            sys.exit()
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE and game_active:
+                bird_move = 0
+                bird_move = -9
+                flap_sound.play()
+            if event.key == pg.K_SPACE and not game_active:
+                game_active = True
+                score = 0   
+                pipe_list.clear()
+                bird_move=0
+                bird_rect.center = (100,384)
+        if event.type == spawnpipe:
+            pipe_list.extend(create_pipe())
+        if event.type == bird_flap:
+            if bird_index < 2:
+                bird_index +=1
+            else:
+                bird_index=0
+            bird, bird_rect = bird_animation()
+            
+
+
+    screen.blit(bg,(0,0))
+    if  game_active:
+        bird_move += gravity
+        rotated_bird = rotate_bird(bird)
+        bird_rect.centery += bird_move
+        screen.blit(rotated_bird,(bird_rect))
+        game_active = check_collision(pipe_list)
+        pipe_list = move_pipe(pipe_list)
+        draw_pipe(pipe_list)
+        score +=0.01
+        score_display('main game')
+        countdown -= 1
+        if countdown <= 0:
+            score_sound.play()
+            countdown = 100
+    else:
+        screen.blit(game_over_surface,game_over_rect)
+        high_score = update_score(score, high_score )
+        score_display('game over')
+    floor_x_pos -=1
+    draw_floor()
+    if floor_x_pos <= -432:
+        floor_x_pos = 0
+
+
+    pg.display.update()
+    clock.tick(120)
