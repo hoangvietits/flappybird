@@ -120,7 +120,7 @@ while True:
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_SPACE and game_active:
                 bird_move = 0
-                bird_move = -9
+                bird_move = -6
                 flap_sound.play()
             if event.key == pg.K_SPACE and not game_active:
                 game_active = True
