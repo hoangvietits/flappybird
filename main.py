@@ -6,14 +6,13 @@ import duckdb
 conn = duckdb.connect(database='scores.db')
 conn.execute("""
 CREATE TABLE IF NOT EXISTS player_scores (
-    player_name VARCHAR,
     score FLOAT,
     difficulty VARCHAR
 )
 """)
 
-def save_score(player_name, score, difficulty):
-    conn.execute("INSERT INTO player_scores VALUES (?, ?, ?)", (player_name, score, difficulty))
+def save_score( score, difficulty):
+    conn.execute("INSERT INTO player_scores VALUES (?, ?)", ( score, difficulty))
 
 # Hàm vẽ sàn
 def draw_floor():
@@ -41,6 +40,10 @@ def draw_pipe(pipes):
         else:
             flip_pipe = pg.transform.flip(pipe_surface, False, True)
             screen.blit(flip_pipe, pipe)
+
+def get_high_score(difficulty):
+    result = conn.execute("SELECT MAX(score) FROM player_scores WHERE difficulty = ?", (difficulty,)).fetchone()
+    return result[0] if result[0] is not None else 0
 
 # Kiểm tra va chạm
 def check_collision(pipes):
@@ -81,6 +84,7 @@ def score_display(game_state):
 # Cập nhật điểm cao nhất
 def update_score(score, high_score):
     if score > high_score:
+
         high_score = score
     return high_score
 
@@ -115,7 +119,7 @@ game_font = pg.font.Font('04B_19.TTF', 40)
 
 # Biến trò chơi
 score = 0
-high_score = 0
+high_score =  0
 difficulty = "Easy"
 show_difficulty_menu = False
 
@@ -176,12 +180,15 @@ while True:
                 easy_button, medium_button, hard_button = show_difficulty_options()
                 if easy_button.collidepoint(mouse_pos):
                     difficulty = "Easy"
+                    high_score = get_high_score("Easy")
                     show_difficulty_menu = False
                 elif medium_button.collidepoint(mouse_pos):
                     difficulty = "Medium"
+                    high_score = get_high_score("Medium")
                     show_difficulty_menu = False
                 elif hard_button.collidepoint(mouse_pos):
                     difficulty = "Hard"
+                    high_score = get_high_score("Hard")
                     show_difficulty_menu = False
                 gravity = difficulty_levels[difficulty]["gravity"]
                 pipe_speed = difficulty_levels[difficulty]["pipe_speed"]
@@ -221,6 +228,7 @@ while True:
     elif not game_active:
         screen.blit(game_over_surface, game_over_rect)
         high_score = update_score(score, high_score)
+        save_score(high_score,difficulty)
         score_display('game over')
         
     floor_x_pos -= 1
