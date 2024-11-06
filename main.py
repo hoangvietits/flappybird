@@ -92,7 +92,7 @@ def update_score(score, high_score):
 def draw_difficulty_button():
     difficulty_button = pg.Rect(10, 10, 150, 50)
     pg.draw.rect(screen, (0, 0, 255), difficulty_button)
-    screen.blit(game_font.render("Difficulty", True, (255, 255, 255)), (20, 20))
+    screen.blit(game_font.render("Diff", True, (255, 255, 255)), (20, 20))
     return difficulty_button
 
 # Hiển thị tùy chọn độ khó
@@ -119,8 +119,9 @@ game_font = pg.font.Font('04B_19.TTF', 40)
 
 # Biến trò chơi
 score = 0
-high_score =  0
 difficulty = "Easy"
+high_score =  get_high_score(difficulty)
+
 show_difficulty_menu = False
 
 # Các mức độ khó
